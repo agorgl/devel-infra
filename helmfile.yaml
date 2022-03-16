@@ -7,5 +7,11 @@ releases:
     values:
       - values/gitolite.yaml.gotmpl
 
+  # CGit
+  - name: cgit
+    chart: ./charts/cgit
+    values:
+      - values/cgit.yaml.gotmpl
+
 values:
   - .env.{{ .Environment.Name }}.yaml

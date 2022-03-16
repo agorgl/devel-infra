@@ -1,0 +1,10 @@
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/app-root: /cgit/
+  hosts:
+    - host: git.{{ .Values.domain }}
+      paths:
+        - path: /
+          pathType: Prefix
