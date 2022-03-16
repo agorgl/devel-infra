@@ -5,9 +5,6 @@ metadata:
   labels:
     {{- include "gitolite.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
-  {{- end }}
   selector:
     matchLabels:
       {{- include "gitolite.selectorLabels" . | nindent 6 }}
@@ -33,18 +30,15 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: SSH_KEY
+              value: "{{ default "" .Values.git.admin.key}}"
+            - name: SSH_KEY_NAME
+              value: "{{ default "admin" .Values.git.admin.name}}"
           ports:
-            - name: http
-              containerPort: 80
+            - name: ssh
+              containerPort: 2222
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
