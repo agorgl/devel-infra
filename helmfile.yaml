@@ -1,0 +1,11 @@
+namespace: devel
+
+releases:
+  # Gitolite
+  - name: gitolite
+    chart: ./charts/gitolite
+    values:
+      - values/gitolite.yaml.gotmpl
+
+values:
+  - .env.{{ .Environment.Name }}.yaml
