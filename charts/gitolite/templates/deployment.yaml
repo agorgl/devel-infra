@@ -39,6 +39,9 @@ spec:
             - name: ssh
               containerPort: 2222
               protocol: TCP
+          volumeMounts:
+            - name: repos
+              mountPath: /home/git/repositories
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
@@ -52,4 +55,10 @@ spec:
       {{- with .Values.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.persistence.enabled }}
+      volumes:
+        - name: repos
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim | default (include "gitolite.fullname" .) }}
       {{- end }}
