@@ -44,6 +44,7 @@ securityContext: {}
 service:
   type: LoadBalancer
   port: 22
+  annotations: {}
 
 persistence:
   enabled: false
