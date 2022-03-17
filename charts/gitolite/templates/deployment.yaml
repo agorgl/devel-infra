@@ -42,8 +42,22 @@ spec:
           volumeMounts:
             - name: repos
               mountPath: /var/lib/git/repositories
+            - name: config
+              mountPath: /var/lib/git/.gitolite.rc
+              subPath: .gitolite.rc
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+      initContainers:
+        - name: setup
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          command:
+            - "/bin/sh"
+            - "-c"
+            - >-
+              gitolite print-default-rc | awk '/UMASK/{ $3="0022," }; { print }' - > /config/.gitolite.rc
+          volumeMounts:
+            - name: config
+              mountPath: /config
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -61,4 +75,6 @@ spec:
         - name: repos
           persistentVolumeClaim:
             claimName: {{ .Values.persistence.existingClaim | default (include "gitolite.fullname" .) }}
+        - name: config
+          emptyDir: {}
       {{- end }}
