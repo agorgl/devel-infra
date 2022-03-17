@@ -37,11 +37,11 @@ spec:
               value: "{{ default "admin" .Values.git.admin.name}}"
           ports:
             - name: ssh
-              containerPort: 2222
+              containerPort: 22
               protocol: TCP
           volumeMounts:
             - name: repos
-              mountPath: /home/git/repositories
+              mountPath: /var/lib/git/repositories
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

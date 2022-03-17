@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: elsdoerfer/gitolite
+  repository: jgiannuzzi/gitolite
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
