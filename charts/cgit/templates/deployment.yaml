@@ -48,8 +48,26 @@ spec:
           volumeMounts:
             - name: repos
               mountPath: /var/www/cgit
+            - name: config
+              mountPath: /etc
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+      initContainers:
+        - name: setup
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          command:
+            - "/bin/sh"
+            - "-c"
+            - >-
+              echo enable-http-clone=1 >> /etc/cgitrc \
+                && awk '/DocumentRoot/{$2="\"/var/www/cgit\""};
+                        /ScriptAlias/{$2="/"; $3="/usr/libexec/cgit/cgi-bin/cgit/"};
+                        {print}' /etc/httpd/conf.d/httpd-cgit.conf > /tmp/httpd-cgit.conf.tmp \
+                && mv /tmp/httpd-cgit.conf.tmp /etc/httpd/conf.d/httpd-cgit.conf \
+                && cp -r /etc/. /config
+          volumeMounts:
+            - name: config
+              mountPath: /config
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -66,3 +84,5 @@ spec:
         - name: repos
           persistentVolumeClaim:
             claimName: {{ .Values.volumes.repos }}
+        - name: config
+          emptyDir: {}
