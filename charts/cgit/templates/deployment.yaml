@@ -59,10 +59,12 @@ spec:
             - "/bin/sh"
             - "-c"
             - >-
-              echo enable-http-clone=1 >> /etc/cgitrc \
-                && awk '/DocumentRoot/{$2="\"/var/www/cgit\""};
-                        /ScriptAlias/{$2="/"; $3="/usr/libexec/cgit/cgi-bin/cgit/"};
-                        {print}' /etc/httpd/conf.d/httpd-cgit.conf > /tmp/httpd-cgit.conf.tmp \
+              awk '/DocumentRoot/{$2="\"/var/www/cgit\""};{print}' /etc/httpd/conf.d/httpd-cgit.conf > /tmp/httpd-cgit.conf.tmp \
+                && sed -i '/ScriptAlias/d' /tmp/httpd-cgit.conf.tmp \
+                && echo 'SetEnv GIT_PROJECT_ROOT "/var/www/cgit"' >> /tmp/httpd-cgit.conf.tmp \
+                && echo -e '<Directory "/usr/libexec/git-core">\n    Require all granted\n</Directory>' >> /tmp/httpd-cgit.conf.tmp \
+                && echo 'ScriptAliasMatch "^/(.*/(HEAD|info/refs|git-upload-pack))$" /usr/libexec/git-core/git-http-backend/$1' >> /tmp/httpd-cgit.conf.tmp \
+                && echo 'ScriptAlias / /usr/libexec/cgit/cgi-bin/cgit/' >> /tmp/httpd-cgit.conf.tmp \
                 && mv /tmp/httpd-cgit.conf.tmp /etc/httpd/conf.d/httpd-cgit.conf \
                 && cp -r /etc/. /config
           volumeMounts:
