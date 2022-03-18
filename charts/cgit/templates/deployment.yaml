@@ -46,8 +46,9 @@ spec:
               path: /
               port: http
           volumeMounts:
-            - name: repos
+            - name: git
               mountPath: /var/www/cgit
+              subPath: repositories
             - name: config
               mountPath: /etc
           resources:
@@ -83,8 +84,8 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
-        - name: repos
+        - name: git
           persistentVolumeClaim:
-            claimName: {{ .Values.volumes.repos }}
+            claimName: {{ .Values.volumes.git }}
         - name: config
           emptyDir: {}

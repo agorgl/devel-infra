@@ -40,8 +40,8 @@ spec:
               containerPort: 22
               protocol: TCP
           volumeMounts:
-            - name: repos
-              mountPath: /var/lib/git/repositories
+            - name: git
+              mountPath: /var/lib/git
             - name: config
               mountPath: /var/lib/git/.gitolite.rc
               subPath: .gitolite.rc
@@ -54,8 +54,11 @@ spec:
             - "/bin/sh"
             - "-c"
             - >-
-              gitolite print-default-rc | awk '/UMASK/{ $3="0022," }; { print }' - > /config/.gitolite.rc
+              chmod 755 /var/lib/git \
+                && gitolite print-default-rc | awk '/UMASK/{ $3="0022," }; { print }' - > /config/.gitolite.rc
           volumeMounts:
+            - name: git
+              mountPath: /var/lib/git
             - name: config
               mountPath: /config
       {{- with .Values.nodeSelector }}
@@ -72,7 +75,7 @@ spec:
       {{- end }}
       {{- if .Values.persistence.enabled }}
       volumes:
-        - name: repos
+        - name: git
           persistentVolumeClaim:
             claimName: {{ .Values.persistence.existingClaim | default (include "gitolite.fullname" .) }}
         - name: config
